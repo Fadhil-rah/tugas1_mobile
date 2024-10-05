@@ -10,19 +10,16 @@ class UserForm extends StatefulWidget {
 
 class _UserFormState extends State<UserForm> {
   final _formKey = GlobalKey<FormState>();
-  String _name = '';
   bool isDarkTheme = false;
   final UserController _userController = UserController();
 
   void _startQuiz() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => _userController.navigateToQuizHome(_name), // Kirim _name
-        ),
-      );
-    }
+    // Langsung navigasi ke QuizHome tanpa validasi nama
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => _userController.navigateToQuizHome(),
+      ),
+    );
   }
 
   void _toggleTheme(bool? value) {
@@ -34,7 +31,7 @@ class _UserFormState extends State<UserForm> {
   void _navigateToProfile() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => _userController.navigateToProfilePage(_name),
+        builder: (context) => _userController.navigateToProfilePage(),
       ),
     );
   }
@@ -76,37 +73,13 @@ class _UserFormState extends State<UserForm> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Masukkan Nama Anda',
+                'Mulai Kuis Sekarang!',
                 style: TextStyle(
                   fontSize: width > 600 ? 32 : 24,
                   fontWeight: FontWeight.bold,
                   color: isDarkTheme ? Colors.white : Colors.blue[900],
                 ),
                 textAlign: TextAlign.center,
-              ),
-              SizedBox(height: height * 0.02),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Nama',
-                  labelStyle: TextStyle(
-                      color: isDarkTheme ? Colors.white : Colors.blue[900]),
-                  border: OutlineInputBorder(),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blueAccent),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Nama tidak boleh kosong';
-                  }
-                  if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value)) {
-                    return 'Nama hanya boleh mengandung huruf';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _name = value!;
-                },
               ),
               SizedBox(height: height * 0.02),
               Row(

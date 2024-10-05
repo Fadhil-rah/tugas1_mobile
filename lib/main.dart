@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: QuizHome(userName: 'User'), // Replace with a default user or remove the parameter if not needed
+      home: QuizHome(), // Tanpa parameter userName
     );
   }
 }

@@ -1,8 +1,8 @@
 // views/quiz_page.dart
 
 import 'package:flutter/material.dart';
+import '../data/quiz_data.dart'; // Pastikan Anda sudah mengimpor data kuis yang tepat
 import '../models/quiz_question.dart';
-import '../data/quiz_data.dart';
 
 class QuizPage extends StatefulWidget {
   @override
@@ -11,44 +11,44 @@ class QuizPage extends StatefulWidget {
 
 class _QuizPageState extends State<QuizPage> {
   int _currentQuestionIndex = 0;
-  List<String?> _userAnswers = List.filled(quizQuestions.length, null);
+  int _score = 0;
 
-  void _nextQuestion() {
-    if (_currentQuestionIndex < quizQuestions.length - 1) {
-      setState(() {
-        _currentQuestionIndex++;
-      });
-    }
-  }
+  void _checkAnswer(String selectedAnswer) {
+    final correctAnswer = quizQuestions[_currentQuestionIndex].correctAnswer;
 
-  void _previousQuestion() {
-    if (_currentQuestionIndex > 0) {
-      setState(() {
-        _currentQuestionIndex--;
-      });
-    }
-  }
-
-  void _submitQuiz() {
-    // Menghitung skor
-    int score = 0;
-    for (int i = 0; i < quizQuestions.length; i++) {
-      if (_userAnswers[i] == quizQuestions[i].correctAnswer) {
-        score++;
+    setState(() {
+      if (selectedAnswer == correctAnswer) {
+        _score++;
       }
-    }
+      _currentQuestionIndex++;
+    });
 
-    // Menampilkan dialog hasil
+    if (_currentQuestionIndex >= quizQuestions.length) {
+      _showScoreDialog();
+    }
+  }
+
+  void _showScoreDialog() {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Hasil Kuis'),
-          content: Text('Anda mendapatkan $score dari ${quizQuestions.length} pertanyaan.'),
+          title: Text('Skor Anda'),
+          content: Text('Anda mendapatkan $_score dari ${quizQuestions.length} pertanyaan.'),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
+                Navigator.of(context).pop();
+                setState(() {
+                  _currentQuestionIndex = 0;
+                  _score = 0;
+                });
+              },
+              child: Text('Ulangi'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
                 Navigator.of(context).pop(); // Kembali ke halaman QuizHome
               },
               child: Text('Kembali ke Beranda'),
@@ -66,57 +66,22 @@ class _QuizPageState extends State<QuizPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Kuis'),
-        backgroundColor: Colors.blueAccent,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               question.question,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 24),
             ),
-            SizedBox(height: 16),
-            if (!question.isEssay) ...[
-              for (var option in question.options)
-                RadioListTile<String>(
-                  title: Text(option),
-                  value: option,
-                  groupValue: _userAnswers[_currentQuestionIndex],
-                  onChanged: (value) {
-                    setState(() {
-                      _userAnswers[_currentQuestionIndex] = value;
-                    });
-                  },
-                ),
-            ] else ...[
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Jawaban Anda'),
-                onChanged: (value) {
-                  _userAnswers[_currentQuestionIndex] = value;
-                },
+            SizedBox(height: 20),
+            for (var option in question.options)
+              ElevatedButton(
+                onPressed: () => _checkAnswer(option),
+                child: Text(option),
               ),
-            ],
-            SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: _previousQuestion,
-                  child: Text('Sebelumnya'),
-                ),
-                ElevatedButton(
-                  onPressed: _nextQuestion,
-                  child: Text('Selanjutnya'),
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _submitQuiz,
-              child: Text('Kirim Jawaban'),
-            ),
           ],
         ),
       ),
